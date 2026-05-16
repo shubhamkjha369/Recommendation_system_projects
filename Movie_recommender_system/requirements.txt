@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+scikit-learn
+joblib
+requests
+beautifulsoup4
+lxml
+requests_cache
+dotenv

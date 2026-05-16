@@ -1,0 +1,57 @@
+:root {
+    --bg-primary: #f4f4f7;
+    --bg-secondary: #ffffff;
+    --text-primary: #2c3e50;
+    --text-secondary: #34495e;
+    --accent-color: #3498db;
+    --hover-color: #2980b9;
+}
+
+.stApp {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Same classes as your current styles */
+h1, h2, h3 {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.recommendation-card {
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.recommendation-card:hover {
+    transform: scale(1.03);
+    border-color: var(--accent-color);
+}
+
+.stButton > button {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+}
+
+.stButton > button:hover {
+    background-color: var(--hover-color) !important;
+}
+
+.recommendation-image {
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Input, Text area, and Selectbox text visibility fix for light mode */
+input, textarea, .stSelectbox div, .stTextInput input {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid #ccc !important;
+}
