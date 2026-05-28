@@ -263,12 +263,16 @@ def main():
         🚀 [Streamlit Web App](https://movie-recommendation-system-skjha369.streamlit.app/)
         """)
 
-    # Load databases
+    # Load databases (using robust script-relative path resolution to prevent folder mismatch errors on Streamlit Sharing)
     try:
-        movies = pickle.load(open('model/movie_list.pkl', 'rb'))
-        similarity = pickle.load(open('model/similarity.pkl', 'rb'))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        movies_path = os.path.join(base_dir, 'model', 'movie_list.pkl')
+        similarity_path = os.path.join(base_dir, 'model', 'similarity.pkl')
+        
+        movies = pickle.load(open(movies_path, 'rb'))
+        similarity = pickle.load(open(similarity_path, 'rb'))
     except FileNotFoundError:
-        st.error("Movie database matrices are missing. Please verify that 'model/movie_list.pkl' and 'model/similarity.pkl' are placed in your app folder.")
+        st.error("Movie database matrices are missing. Please verify that 'model/movie_list.pkl' and 'model/similarity.pkl' exist in the model directory.")
         return
     except Exception as e:
         st.error(f"Failed to load similarity model: {e}")
