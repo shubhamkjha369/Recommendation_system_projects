@@ -58,6 +58,23 @@ blend_strategy = st.sidebar.radio(
     help="Strict Match ensures recommendations are highly similar to ALL selected movies (using a geometric product). Broad Match averages similarities across all selections (Fuzzy OR)."
 )
 
+# Genre Filtering options in sidebar
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🎯 Genre Filters")
+excluded_genres = st.sidebar.multiselect(
+    "Exclude Genres",
+    ["Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western"],
+    default=[],
+    help="Exclude any recommended movies containing these genres."
+)
+
+required_genres = st.sidebar.multiselect(
+    "Require Genres",
+    ["Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "History", "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi", "Sport", "Thriller", "War", "Western"],
+    default=[],
+    help="Only show recommended movies that contain at least one of these genres."
+)
+
 # Extract and clean key (handling raw keys, copy-paste spacing, or full OMDb URLs)
 raw_key = st.session_state["omdb_api_key"].strip()
 VERIFYKEY = raw_key
@@ -192,10 +209,10 @@ def fetch_movie_details(movie_title: str) -> Dict[str, Any]:
     return default_data
 
 
-def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int = 5, blend_strategy: str = "Strict Match (Fuzzy AND)") -> List[Dict[str, Any]]:
+def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int = 5, blend_strategy: str = "Strict Match (Fuzzy AND)", excluded_genres: List[str] = [], required_genres: List[str] = []) -> List[Dict[str, Any]]:
     """
     Calculate similarity scores for single or multiple blended input movies.
-    Filters out inputs and extracts complete live details.
+    Filters out inputs and extracts complete live details, applying genre exclusions and requirements.
     """
     try:
         indices = []
@@ -222,8 +239,8 @@ def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int 
         # Rank similarity distances
         distances = sorted(list(enumerate(sim_scores)), reverse=True, key=lambda x: x[1])
         
-        recommendations = []
-        count = 0
+        results = []
+        checked_count = 0
         for item in distances:
             idx = item[0]
             movie_title = movies_df.iloc[idx].title
@@ -232,18 +249,29 @@ def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int 
             if movie_title in movies_input:
                 continue
                 
-            recommendations.append(movie_title)
-            count += 1
-            if count >= top_n:
+            checked_count += 1
+            if checked_count > 40:  # Prevent excessive network queries
                 break
                 
-        # Batch query live movie card details
-        results = []
-        for title in recommendations:
-            details = fetch_movie_details(title)
-            details["title"] = title
-            results.append(details)
+            # Fetch details to check genres
+            details = fetch_movie_details(movie_title)
             
+            # Genre post-filtering (case-insensitive checks)
+            movie_genres = [g.strip().lower() for g in details["genre"].split(",")]
+            
+            # 1. Exclude Filter
+            if any(ex.lower() in movie_genres for ex in excluded_genres):
+                continue
+                
+            # 2. Require Filter
+            if required_genres and not any(req.lower() in movie_genres for req in required_genres):
+                continue
+                
+            details["title"] = movie_title
+            results.append(details)
+            if len(results) >= top_n:
+                break
+                
         return results
         
     except Exception as e:
@@ -329,7 +357,7 @@ def main():
     if st.button('🔮 Curate Recommendations', type='primary'):
         if selected_movies:
             with st.spinner('Synthesizing vectors and curating selections...'):
-                recommendations = recommend(selected_movies, movies, similarity, top_n, blend_strategy)
+                recommendations = recommend(selected_movies, movies, similarity, top_n, blend_strategy, excluded_genres, required_genres)
                 
             if recommendations:
                 st.markdown("---")
