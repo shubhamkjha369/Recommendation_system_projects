@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+/* Global Font Override */
+.stApp {
+    font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif !important;
+}
+
+/* Header Styles */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.5px !important;
+}
+
+/* Sidebar Custom Border adjustments */
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(128, 128, 128, 0.15) !important;
+}
+
+/* Premium Movie Cards - Automatically inherits native colors! */
+[data-testid="stVerticalBlock"] > div > div > [data-testid="element-container"] .stContainer {
+    background-color: var(--secondary-background-color) !important;
+    border: 1px solid rgba(128, 128, 128, 0.15) !important;
+    border-radius: 20px !important;
+    padding: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+
+[data-testid="stVerticalBlock"] > div > div > [data-testid="element-container"] .stContainer:hover {
+    transform: translateY(-6px) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 15px 35px rgba(128, 128, 128, 0.15) !important;
+}
+
+/* Custom styled scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(128, 128, 128, 0.45);
+}
+
+/* Accent Badges for movie metadata - Auto adapting! */
+.movie-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: rgba(128, 128, 128, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.85;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+
+.movie-badge-accent {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: rgba(128, 128, 128, 0.04);
+}
+
+/* Button Customizations */
+.stButton > button {
+    background: var(--primary-color) !important;
+    color: var(--background-color) !important;
+    border: none !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 12px !important;
+    padding: 10px 24px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stButton > button:hover {
+    transform: scale(1.03) !important;
+    opacity: 0.95 !important;
+}
