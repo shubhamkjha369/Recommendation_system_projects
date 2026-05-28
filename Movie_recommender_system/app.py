@@ -48,6 +48,16 @@ if api_key_input != st.session_state["omdb_api_key"]:
     st.session_state["omdb_api_key"] = api_key_input
     st.rerun()
 
+# Blending Strategy selection (Strict Match uses vector product, Broad Match uses vector average)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🎛️ Algorithm Settings")
+blend_strategy = st.sidebar.radio(
+    "🔄 Blending Strategy",
+    ["Strict Match (Fuzzy AND)", "Broad Match (Fuzzy OR)"],
+    index=0,
+    help="Strict Match ensures recommendations are highly similar to ALL selected movies (using a geometric product). Broad Match averages similarities across all selections (Fuzzy OR)."
+)
+
 # Extract and clean key (handling raw keys, copy-paste spacing, or full OMDb URLs)
 raw_key = st.session_state["omdb_api_key"].strip()
 VERIFYKEY = raw_key
@@ -182,7 +192,7 @@ def fetch_movie_details(movie_title: str) -> Dict[str, Any]:
     return default_data
 
 
-def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int = 5) -> List[Dict[str, Any]]:
+def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int = 5, blend_strategy: str = "Strict Match (Fuzzy AND)") -> List[Dict[str, Any]]:
     """
     Calculate similarity scores for single or multiple blended input movies.
     Filters out inputs and extracts complete live details.
@@ -197,12 +207,17 @@ def recommend(movies_input: List[str], movies_df, similarity_matrix, top_n: int 
         if not indices:
             return []
             
-        # Mathematical Vector Blending (combines and averages cosine similarities)
+        # Mathematical Vector Blending (combines cosine similarities)
         if len(indices) == 1:
             sim_scores = similarity_matrix[indices[0]]
         else:
             import numpy as np
-            sim_scores = np.mean([similarity_matrix[idx] for idx in indices], axis=0)
+            if blend_strategy.startswith("Strict"):
+                # Strict: element-wise product of similarity vectors (Geometric Product)
+                sim_scores = np.prod([similarity_matrix[idx] for idx in indices], axis=0)
+            else:
+                # Broad: arithmetic mean across vectors
+                sim_scores = np.mean([similarity_matrix[idx] for idx in indices], axis=0)
             
         # Rank similarity distances
         distances = sorted(list(enumerate(sim_scores)), reverse=True, key=lambda x: x[1])
@@ -314,14 +329,14 @@ def main():
     if st.button('🔮 Curate Recommendations', type='primary'):
         if selected_movies:
             with st.spinner('Synthesizing vectors and curating selections...'):
-                recommendations = recommend(selected_movies, movies, similarity, top_n)
+                recommendations = recommend(selected_movies, movies, similarity, top_n, blend_strategy)
                 
             if recommendations:
                 st.markdown("---")
                 if len(selected_movies) == 1:
-                    st.subheader(f"✨ Suggestions inspired by: {selected_movies[0]}")
+                    st.subheader(f"✨ Curated Recommendations inspired by: {selected_movies[0]}")
                 else:
-                    st.subheader(f"✨ Blended Suggestions inspired by your selection ({len(selected_movies)} movies)")
+                    st.subheader(f"✨ {len(recommendations)} Blended Suggestions inspired by your {len(selected_movies)} selections:")
                 
                 # Visual columns grid layout
                 cols = st.columns(len(recommendations))
